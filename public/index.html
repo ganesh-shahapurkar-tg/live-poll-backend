@@ -32,6 +32,7 @@
         padding: 30px;
         text-align: center;
         color: white;
+        position: relative;
       }
 
       .header h1 {
@@ -43,6 +44,70 @@
       .header p {
         font-size: 1.1rem;
         opacity: 0.9;
+      }
+
+      /* ✅ NEW: Auto-refresh controls */
+      .auto-refresh-controls {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+      }
+
+      .refresh-toggle {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        font-size: 0.8rem;
+      }
+
+      .refresh-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .refresh-toggle.active {
+        background: rgba(34, 197, 94, 0.3);
+      }
+
+      .refresh-toggle.paused {
+        background: rgba(239, 68, 68, 0.3);
+      }
+
+      .countdown-timer {
+        font-weight: 500;
+        min-width: 30px;
+        text-align: center;
+      }
+
+      /* ✅ NEW: Update indicator */
+      .update-indicator {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.3s ease;
+      }
+
+      .update-indicator.show {
+        opacity: 1;
+        transform: translateY(0);
       }
 
       .dashboard {
@@ -122,6 +187,22 @@
         transform: translateX(5px);
       }
 
+      .option-item.highlight {
+        border-color: #22c55e;
+        background: #f0fdf4;
+        animation: pulse 1s ease-in-out;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+      }
+
       .option-text {
         font-size: 1.1rem;
         color: #2d3748;
@@ -140,10 +221,30 @@
         color: #2d3748;
         margin-bottom: 20px;
         text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
       }
 
       .result-item {
         margin-bottom: 15px;
+        transition: all 0.3s ease;
+      }
+
+      .result-item.updated {
+        animation: highlightUpdate 2s ease-in-out;
+      }
+
+      @keyframes highlightUpdate {
+        0%,
+        100% {
+          background: transparent;
+        }
+        50% {
+          background: rgba(79, 172, 254, 0.1);
+          border-radius: 8px;
+        }
       }
 
       .result-header {
@@ -173,7 +274,7 @@
         height: 100%;
         background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
         border-radius: 4px;
-        transition: width 0.5s ease;
+        transition: width 0.8s ease;
       }
 
       .qr-section {
@@ -227,6 +328,22 @@
         border-radius: 10px;
         text-align: center;
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      .stat-card.updated {
+        animation: statUpdate 1.5s ease-in-out;
+      }
+
+      @keyframes statUpdate {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 5px 20px rgba(79, 172, 254, 0.3);
+        }
       }
 
       .stat-number {
@@ -261,6 +378,14 @@
         color: #742a2a;
       }
 
+      .refresh-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        justify-content: center;
+        align-items: center;
+      }
+
       .refresh-btn {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         color: white;
@@ -271,12 +396,32 @@
         font-size: 1rem;
         font-weight: 500;
         transition: transform 0.2s ease;
-        margin-top: 20px;
       }
 
       .refresh-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+      }
+
+      .refresh-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .pause-btn {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      }
+
+      .pause-btn.paused {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      }
+
+      .last-update {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 10px;
+        text-align: center;
       }
 
       .loading {
@@ -321,14 +466,40 @@
         .qr-section {
           padding: 20px;
         }
+
+        .auto-refresh-controls {
+          position: relative;
+          top: auto;
+          right: auto;
+          margin-top: 15px;
+          justify-content: center;
+        }
       }
     </style>
   </head>
   <body>
+    <!-- ✅ NEW: Update indicator -->
+    <div id="update-indicator" class="update-indicator">
+      🔄 Updating results...
+    </div>
+
     <div class="container">
       <div class="header">
         <h1>🗳️ Live Poll Dashboard</h1>
         <p>Real-time polling results and QR code access</p>
+
+        <!-- ✅ NEW: Auto-refresh controls -->
+        <div class="auto-refresh-controls">
+          <span id="refresh-status">🟢 Auto-refresh</span>
+          <span class="countdown-timer" id="countdown-timer">5</span>
+          <button
+            class="refresh-toggle active"
+            id="refresh-toggle"
+            onclick="toggleAutoRefresh()"
+          >
+            PAUSE
+          </button>
+        </div>
       </div>
 
       <div class="dashboard">
@@ -358,7 +529,7 @@
               </div>
 
               <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" id="total-votes-card">
                   <span id="total-votes" class="stat-number">0</span>
                   <div class="stat-label">Total Votes</div>
                 </div>
@@ -366,7 +537,7 @@
                   <span id="option-count" class="stat-number">0</span>
                   <div class="stat-label">Options</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="participation-card">
                   <span id="participation-rate" class="stat-number">0%</span>
                   <div class="stat-label">Participation</div>
                 </div>
@@ -379,11 +550,36 @@
             </div>
 
             <div class="results-section">
-              <h3 class="results-title">📊 Live Results</h3>
+              <h3 class="results-title">
+                📊 Live Results
+                <span
+                  id="live-indicator"
+                  style="font-size: 0.8rem; color: #22c55e"
+                  >● LIVE</span
+                >
+              </h3>
               <div id="results-list"></div>
-              <button class="refresh-btn" onclick="loadPollData()">
-                🔄 Refresh Results
-              </button>
+
+              <div class="refresh-controls">
+                <button
+                  class="refresh-btn"
+                  onclick="manualRefresh()"
+                  id="manual-refresh-btn"
+                >
+                  🔄 Manual Refresh
+                </button>
+                <button
+                  class="refresh-btn pause-btn"
+                  onclick="toggleAutoRefresh()"
+                  id="pause-btn"
+                >
+                  ⏸️ Pause Auto-refresh
+                </button>
+              </div>
+
+              <div class="last-update" id="last-update">
+                Last updated: Never
+              </div>
             </div>
           </div>
         </div>
@@ -406,24 +602,130 @@
     </div>
 
     <script>
-      // Configuration - Update these with your actual API URLs
+      // Configuration
       const API_BASE_URL =
-        "https://live-poll-backend-production.up.railway.app"; // Your Railway API URL
-      const POLL_ID = "sample-id"; // Your poll ID
-      const APP_DOMAIN = "live-poll-backend-production.up.railway.app"; // Your app domain
+        "https://live-poll-backend-production.up.railway.app";
+      const POLL_ID = "sample-id";
+      const APP_DOMAIN = "live-poll-backend-production.up.railway.app";
 
+      // ✅ NEW: Auto-refresh variables
       let pollData = null;
       let resultsData = null;
+      let previousResultsData = null;
+      let autoRefreshInterval = null;
+      let countdownInterval = null;
+      let isAutoRefreshActive = true;
+      let countdownSeconds = 5;
+      const REFRESH_INTERVAL = 5000; // 5 seconds
 
       // Load poll data on page load
       window.addEventListener("load", function () {
         loadPollData();
-        // Auto-refresh every 5 seconds
-        setInterval(loadResults, 5000);
+        startAutoRefresh();
       });
+
+      // ✅ NEW: Auto-refresh management
+      function startAutoRefresh() {
+        if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        // Start the auto-refresh cycle
+        autoRefreshInterval = setInterval(() => {
+          if (isAutoRefreshActive) {
+            loadResults();
+          }
+        }, REFRESH_INTERVAL);
+
+        // Start the countdown timer
+        startCountdown();
+      }
+
+      function startCountdown() {
+        countdownSeconds = 5;
+        updateCountdownDisplay();
+
+        countdownInterval = setInterval(() => {
+          if (isAutoRefreshActive) {
+            countdownSeconds--;
+            updateCountdownDisplay();
+
+            if (countdownSeconds <= 0) {
+              countdownSeconds = 5;
+            }
+          }
+        }, 1000);
+      }
+
+      function updateCountdownDisplay() {
+        const timer = document.getElementById("countdown-timer");
+        const status = document.getElementById("refresh-status");
+        const liveIndicator = document.getElementById("live-indicator");
+
+        if (timer) {
+          timer.textContent = isAutoRefreshActive ? countdownSeconds : "⏸️";
+        }
+
+        if (status) {
+          status.textContent = isAutoRefreshActive
+            ? "🟢 Auto-refresh"
+            : "🔴 Paused";
+        }
+
+        if (liveIndicator) {
+          liveIndicator.style.color = isAutoRefreshActive
+            ? "#22c55e"
+            : "#ef4444";
+          liveIndicator.textContent = isAutoRefreshActive
+            ? "● LIVE"
+            : "● PAUSED";
+        }
+      }
+
+      function toggleAutoRefresh() {
+        isAutoRefreshActive = !isAutoRefreshActive;
+
+        const toggleBtn = document.getElementById("refresh-toggle");
+        const pauseBtn = document.getElementById("pause-btn");
+
+        if (isAutoRefreshActive) {
+          toggleBtn.textContent = "PAUSE";
+          toggleBtn.className = "refresh-toggle active";
+          pauseBtn.innerHTML = "⏸️ Pause Auto-refresh";
+          pauseBtn.className = "refresh-btn pause-btn";
+        } else {
+          toggleBtn.textContent = "RESUME";
+          toggleBtn.className = "refresh-toggle paused";
+          pauseBtn.innerHTML = "▶️ Resume Auto-refresh";
+          pauseBtn.className = "refresh-btn pause-btn paused";
+        }
+
+        updateCountdownDisplay();
+      }
+
+      function manualRefresh() {
+        const btn = document.getElementById("manual-refresh-btn");
+        btn.disabled = true;
+        btn.innerHTML = "🔄 Refreshing...";
+
+        loadResults().finally(() => {
+          btn.disabled = false;
+          btn.innerHTML = "🔄 Manual Refresh";
+        });
+      }
+
+      function showUpdateIndicator() {
+        const indicator = document.getElementById("update-indicator");
+        indicator.classList.add("show");
+
+        setTimeout(() => {
+          indicator.classList.remove("show");
+        }, 2000);
+      }
 
       async function loadPollData() {
         try {
+          showUpdateIndicator();
+
           // Load poll details
           const pollResponse = await fetch(`${API_BASE_URL}/polls/${POLL_ID}`);
           const pollResult = await pollResponse.json();
@@ -445,10 +747,10 @@
         } catch (error) {
           console.error("Error loading poll data:", error);
           document.getElementById("loading").innerHTML = `
-                    <p style="color: #e53e3e;">❌ Error loading poll data</p>
-                    <p style="font-size: 0.9rem; margin-top: 10px;">Please check your API configuration</p>
-                    <button class="refresh-btn" onclick="location.reload()">Try Again</button>
-                `;
+            <p style="color: #e53e3e;">❌ Error loading poll data</p>
+            <p style="font-size: 0.9rem; margin-top: 10px;">Please check your API configuration</p>
+            <button class="refresh-btn" onclick="location.reload()">Try Again</button>
+          `;
         }
       }
 
@@ -460,8 +762,10 @@
           const resultsResult = await resultsResponse.json();
 
           if (resultsResult.success) {
+            previousResultsData = resultsData; // Store previous data for comparison
             resultsData = resultsResult.data;
             updateResults();
+            updateLastUpdatedTime();
           }
         } catch (error) {
           console.error("Error loading results:", error);
@@ -483,8 +787,8 @@
           console.error("Error loading QR code:", error);
           document.getElementById("qr-code").style.display = "none";
           document.querySelector(".qr-container").innerHTML = `
-                    <p style="color: #e53e3e; padding: 50px;">❌ QR Code unavailable</p>
-                `;
+            <p style="color: #e53e3e; padding: 50px;">❌ QR Code unavailable</p>
+          `;
         }
       }
 
@@ -520,11 +824,9 @@
           pollData.options.forEach((option, index) => {
             const optionDiv = document.createElement("div");
             optionDiv.className = "option-item";
-            optionDiv.innerHTML = `
-                        <div class="option-text">${index + 1}. ${
+            optionDiv.innerHTML = `<div class="option-text">${index + 1}. ${
               option.text
-            }</div>
-                    `;
+            }</div>`;
             optionsList.appendChild(optionDiv);
           });
         }
@@ -533,43 +835,76 @@
       function updateResults() {
         if (!resultsData) return;
 
-        document.getElementById("total-votes").textContent =
-          resultsData.totalVotes || 0;
+        const currentVotes = resultsData.totalVotes || 0;
+        const previousVotes = previousResultsData?.totalVotes || 0;
 
-        // Calculate participation rate (mock calculation)
-        const participationRate = Math.min(
-          100,
-          (resultsData.totalVotes || 0) * 2
-        ); // Mock calculation
-        document.getElementById(
-          "participation-rate"
-        ).textContent = `${participationRate}%`;
+        // ✅ NEW: Animate total votes if changed
+        const totalVotesElement = document.getElementById("total-votes");
+        totalVotesElement.textContent = currentVotes;
 
-        // Update results list
+        if (currentVotes > previousVotes) {
+          document.getElementById("total-votes-card").classList.add("updated");
+          setTimeout(() => {
+            document
+              .getElementById("total-votes-card")
+              .classList.remove("updated");
+          }, 1500);
+        }
+
+        // Calculate participation rate
+        const participationRate = Math.min(100, currentVotes * 2);
+        const participationElement =
+          document.getElementById("participation-rate");
+        participationElement.textContent = `${participationRate}%`;
+
+        if (currentVotes > previousVotes) {
+          document
+            .getElementById("participation-card")
+            .classList.add("updated");
+          setTimeout(() => {
+            document
+              .getElementById("participation-card")
+              .classList.remove("updated");
+          }, 1500);
+        }
+
+        // Update results list with animations
         const resultsList = document.getElementById("results-list");
         resultsList.innerHTML = "";
 
         if (resultsData.results) {
-          resultsData.results.forEach((result) => {
+          resultsData.results.forEach((result, index) => {
+            const previousResult = previousResultsData?.results?.find(
+              (r) => r.id === result.id
+            );
+            const hasChanged =
+              !previousResult || previousResult.votes !== result.votes;
+
             const resultDiv = document.createElement("div");
-            resultDiv.className = "result-item";
+            resultDiv.className = hasChanged
+              ? "result-item updated"
+              : "result-item";
             resultDiv.innerHTML = `
-                        <div class="result-header">
-                            <span class="result-text">${result.text}</span>
-                            <span class="result-count">${result.votes} votes (${result.percentage}%)</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${result.percentage}%"></div>
-                        </div>
-                    `;
+              <div class="result-header">
+                <span class="result-text">${result.text}</span>
+                <span class="result-count">${result.votes} votes (${result.percentage}%)</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${result.percentage}%"></div>
+              </div>
+            `;
             resultsList.appendChild(resultDiv);
           });
         }
+      }
 
-        // Update last updated timestamp
+      function updateLastUpdatedTime() {
         const now = new Date();
         const timeString = now.toLocaleTimeString();
-        console.log(`Results updated at ${timeString}`);
+        const lastUpdateElement = document.getElementById("last-update");
+        if (lastUpdateElement) {
+          lastUpdateElement.textContent = `Last updated: ${timeString}`;
+        }
       }
 
       // Utility function to format dates
@@ -577,6 +912,28 @@
         const date = new Date(dateString);
         return date.toLocaleDateString() + " " + date.toLocaleTimeString();
       }
+
+      // ✅ NEW: Handle visibility change (pause when tab is not active)
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+          // Tab is hidden, pause auto-refresh
+          const wasActive = isAutoRefreshActive;
+          if (wasActive) {
+            toggleAutoRefresh();
+            // Store the previous state
+            document.body.dataset.wasAutoActive = "true";
+          }
+        } else {
+          // Tab is visible again, resume if it was active before
+          if (
+            document.body.dataset.wasAutoActive === "true" &&
+            !isAutoRefreshActive
+          ) {
+            toggleAutoRefresh();
+            document.body.dataset.wasAutoActive = "false";
+          }
+        }
+      });
     </script>
   </body>
 </html>
