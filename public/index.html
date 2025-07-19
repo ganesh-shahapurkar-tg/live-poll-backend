@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Poll Dashboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        padding: 30px;
+        text-align: center;
+        color: white;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .dashboard {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        min-height: 600px;
+      }
+
+      .poll-details {
+        padding: 40px;
+        background: #f8fafc;
+      }
+
+      .poll-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+      }
+
+      .poll-title {
+        font-size: 1.8rem;
+        color: #2d3748;
+        margin-bottom: 15px;
+        font-weight: 600;
+      }
+
+      .poll-description {
+        color: #718096;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      .poll-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .meta-item {
+        background: #edf2f7;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: #4a5568;
+      }
+
+      .meta-item strong {
+        color: #2d3748;
+      }
+
+      .options-container {
+        margin-top: 30px;
+      }
+
+      .options-title {
+        font-size: 1.3rem;
+        color: #2d3748;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      .option-item {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .option-item:hover {
+        border-color: #4facfe;
+        transform: translateX(5px);
+      }
+
+      .option-text {
+        font-size: 1.1rem;
+        color: #2d3748;
+      }
+
+      .results-section {
+        margin-top: 30px;
+        padding: 25px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .results-title {
+        font-size: 1.3rem;
+        color: #2d3748;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .result-item {
+        margin-bottom: 15px;
+      }
+
+      .result-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+
+      .result-text {
+        font-weight: 500;
+        color: #2d3748;
+      }
+
+      .result-count {
+        color: #4a5568;
+        font-size: 0.9rem;
+      }
+
+      .progress-bar {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 4px;
+        transition: width 0.5s ease;
+      }
+
+      .qr-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+      }
+
+      .qr-title {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      .qr-container {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .qr-code {
+        width: 250px;
+        height: 250px;
+        border: none;
+      }
+
+      .qr-instructions {
+        font-size: 1rem;
+        opacity: 0.9;
+        line-height: 1.6;
+        max-width: 300px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4facfe;
+        display: block;
+      }
+
+      .stat-label {
+        color: #718096;
+        font-size: 0.9rem;
+        margin-top: 5px;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+
+      .status-active {
+        background: #c6f6d5;
+        color: #22543d;
+      }
+
+      .status-inactive {
+        background: #fed7d7;
+        color: #742a2a;
+      }
+
+      .refresh-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: transform 0.2s ease;
+        margin-top: 20px;
+      }
+
+      .refresh-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #718096;
+      }
+
+      .spinner {
+        border: 3px solid #e2e8f0;
+        border-top: 3px solid #4facfe;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .dashboard {
+          grid-template-columns: 1fr;
+        }
+
+        .qr-section {
+          order: -1;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .poll-details,
+        .qr-section {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🗳️ Live Poll Dashboard</h1>
+        <p>Real-time polling results and QR code access</p>
+      </div>
+
+      <div class="dashboard">
+        <!-- Left Side - Poll Details -->
+        <div class="poll-details">
+          <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading poll data...</p>
+          </div>
+
+          <div id="poll-content" style="display: none">
+            <div class="poll-card">
+              <h2 id="poll-title" class="poll-title">Loading...</h2>
+              <p id="poll-description" class="poll-description">Loading...</p>
+
+              <div class="poll-meta">
+                <div class="meta-item">
+                  <strong>Status:</strong>
+                  <span id="poll-status" class="status-badge">...</span>
+                </div>
+                <div class="meta-item">
+                  <strong>Event:</strong> <span id="event-name">...</span>
+                </div>
+                <div class="meta-item">
+                  <strong>Host:</strong> <span id="host-name">...</span>
+                </div>
+              </div>
+
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <span id="total-votes" class="stat-number">0</span>
+                  <div class="stat-label">Total Votes</div>
+                </div>
+                <div class="stat-card">
+                  <span id="option-count" class="stat-number">0</span>
+                  <div class="stat-label">Options</div>
+                </div>
+                <div class="stat-card">
+                  <span id="participation-rate" class="stat-number">0%</span>
+                  <div class="stat-label">Participation</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="options-container">
+              <h3 class="options-title">📋 Poll Options</h3>
+              <div id="options-list"></div>
+            </div>
+
+            <div class="results-section">
+              <h3 class="results-title">📊 Live Results</h3>
+              <div id="results-list"></div>
+              <button class="refresh-btn" onclick="loadPollData()">
+                🔄 Refresh Results
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side - QR Code -->
+        <div class="qr-section">
+          <h3 class="qr-title">📱 Scan to Vote</h3>
+          <div class="qr-container">
+            <img id="qr-code" class="qr-code" src="" alt="QR Code Loading..." />
+          </div>
+          <p class="qr-instructions">
+            Scan this QR code with your mobile device to access the voting
+            interface and cast your vote in real-time.
+          </p>
+          <div style="margin-top: 20px; opacity: 0.8; font-size: 0.9rem">
+            <p id="poll-url">🌐 Poll URL: Loading...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Configuration - Update these with your actual API URLs
+      const API_BASE_URL =
+        "https://live-poll-backend-production.up.railway.app"; // Your Railway API URL
+      const POLL_ID = "sample-id"; // Your poll ID
+      const APP_DOMAIN = "live-poll-backend-production.up.railway.app"; // Your app domain
+
+      let pollData = null;
+      let resultsData = null;
+
+      // Load poll data on page load
+      window.addEventListener("load", function () {
+        loadPollData();
+        // Auto-refresh every 5 seconds
+        setInterval(loadResults, 5000);
+      });
+
+      async function loadPollData() {
+        try {
+          // Load poll details
+          const pollResponse = await fetch(`${API_BASE_URL}/polls/${POLL_ID}`);
+          const pollResult = await pollResponse.json();
+
+          if (pollResult.success) {
+            pollData = pollResult.data;
+            updatePollDetails();
+          }
+
+          // Load results
+          await loadResults();
+
+          // Load QR code
+          await loadQRCode();
+
+          // Hide loading, show content
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("poll-content").style.display = "block";
+        } catch (error) {
+          console.error("Error loading poll data:", error);
+          document.getElementById("loading").innerHTML = `
+                    <p style="color: #e53e3e;">❌ Error loading poll data</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Please check your API configuration</p>
+                    <button class="refresh-btn" onclick="location.reload()">Try Again</button>
+                `;
+        }
+      }
+
+      async function loadResults() {
+        try {
+          const resultsResponse = await fetch(
+            `${API_BASE_URL}/results/${POLL_ID}`
+          );
+          const resultsResult = await resultsResponse.json();
+
+          if (resultsResult.success) {
+            resultsData = resultsResult.data;
+            updateResults();
+          }
+        } catch (error) {
+          console.error("Error loading results:", error);
+        }
+      }
+
+      async function loadQRCode() {
+        try {
+          const qrResponse = await fetch(`${API_BASE_URL}/polls/${POLL_ID}/qr`);
+          const qrResult = await qrResponse.json();
+
+          if (qrResult.success) {
+            document.getElementById("qr-code").src = qrResult.data.qrCodeImage;
+            document.getElementById(
+              "poll-url"
+            ).textContent = `🌐 Poll URL: ${qrResult.data.qrCodeUrl}`;
+          }
+        } catch (error) {
+          console.error("Error loading QR code:", error);
+          document.getElementById("qr-code").style.display = "none";
+          document.querySelector(".qr-container").innerHTML = `
+                    <p style="color: #e53e3e; padding: 50px;">❌ QR Code unavailable</p>
+                `;
+        }
+      }
+
+      function updatePollDetails() {
+        if (!pollData) return;
+
+        document.getElementById("poll-title").textContent = pollData.title;
+        document.getElementById("poll-description").textContent =
+          pollData.description || "No description provided";
+        document.getElementById("event-name").textContent =
+          pollData.eventName || "Not specified";
+        document.getElementById("host-name").textContent =
+          pollData.hostName || "Anonymous";
+        document.getElementById("option-count").textContent = pollData.options
+          ? pollData.options.length
+          : 0;
+
+        // Update status badge
+        const statusElement = document.getElementById("poll-status");
+        if (pollData.isActive) {
+          statusElement.textContent = "Active";
+          statusElement.className = "status-badge status-active";
+        } else {
+          statusElement.textContent = "Inactive";
+          statusElement.className = "status-badge status-inactive";
+        }
+
+        // Update options list
+        const optionsList = document.getElementById("options-list");
+        optionsList.innerHTML = "";
+
+        if (pollData.options) {
+          pollData.options.forEach((option, index) => {
+            const optionDiv = document.createElement("div");
+            optionDiv.className = "option-item";
+            optionDiv.innerHTML = `
+                        <div class="option-text">${index + 1}. ${
+              option.text
+            }</div>
+                    `;
+            optionsList.appendChild(optionDiv);
+          });
+        }
+      }
+
+      function updateResults() {
+        if (!resultsData) return;
+
+        document.getElementById("total-votes").textContent =
+          resultsData.totalVotes || 0;
+
+        // Calculate participation rate (mock calculation)
+        const participationRate = Math.min(
+          100,
+          (resultsData.totalVotes || 0) * 2
+        ); // Mock calculation
+        document.getElementById(
+          "participation-rate"
+        ).textContent = `${participationRate}%`;
+
+        // Update results list
+        const resultsList = document.getElementById("results-list");
+        resultsList.innerHTML = "";
+
+        if (resultsData.results) {
+          resultsData.results.forEach((result) => {
+            const resultDiv = document.createElement("div");
+            resultDiv.className = "result-item";
+            resultDiv.innerHTML = `
+                        <div class="result-header">
+                            <span class="result-text">${result.text}</span>
+                            <span class="result-count">${result.votes} votes (${result.percentage}%)</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${result.percentage}%"></div>
+                        </div>
+                    `;
+            resultsList.appendChild(resultDiv);
+          });
+        }
+
+        // Update last updated timestamp
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        console.log(`Results updated at ${timeString}`);
+      }
+
+      // Utility function to format dates
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+      }
+    </script>
+  </body>
+</html>

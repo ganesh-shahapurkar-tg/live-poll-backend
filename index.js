@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 const pollRoutes = require("./routes/polls");
@@ -22,6 +23,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Trust proxy (important for deployment)
 app.set("trust proxy", true);
+
+app.use(express.static(path.join(__dirname, "public")));
+
+// ✅ Dashboard routes
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 // Health check endpoint
 app.get("/", (req, res) => {
