@@ -43,12 +43,6 @@ app.use("/", pollRoutes);
 app.use(errorHandler);
 
 // 404 handler
-// app.use("*", (req, res) => {
-//   res.status(404).json({
-//     error: "Endpoint not found",
-//     message: `The endpoint ${req.method} ${req.originalUrl} does not exist`,
-//   });
-// });
 app.use((req, res) => {
   res.status(404).json({
     error: "Endpoint not found",
